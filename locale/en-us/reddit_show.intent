@@ -1,2 +1,3 @@
 Reddit show {data} of {community}
+Reddit show {data} from {community}
 Reddit show {community}
