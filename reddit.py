@@ -79,7 +79,8 @@ class Reddit:
 
 
     def save_video(self, item:str, folder:str) -> None:
-        if 'gfycat' in item.url:
+        self.mycroft.log.info(f"[Video] Trying to download {item.url} to {folder}")
+        if 'gfycat' in item.url or 'youtube' in item.url:
             subprocess.call(['youtube-dl', item.url], cwd=folder)
 
 

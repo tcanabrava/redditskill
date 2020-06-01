@@ -1,6 +1,7 @@
 from mycroft import MycroftSkill, intent_file_handler
 from . import reddit
 from typing import Any
+from pathlib import Path
 
 def get_data_type(data_type: str) -> Any:
     if data_type in ["video", "videos", "film", "films", "movie", "movies"]:
@@ -53,7 +54,7 @@ class RedditSkill(MycroftSkill):
         data_type = get_data_type(show_data_type)
         downloader = reddit.Reddit(
             mycroft=self,
-            download_folder="/home/tcanabrava/coiso", 
+            download_folder=Path.home(),
             limit=10
         )
 
