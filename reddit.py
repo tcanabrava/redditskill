@@ -9,14 +9,15 @@ import argparse
 
 from typing import List
 
+
+
 class Reddit:
     class DataTypes(Enum):
         VIDEO = 1
         IMAGES = 2
         ALL = 3
 
-
-    __init__(self, download_folder: str) -> None:
+    def __init__(self, download_folder):
         self.download_folder = download_folder
         self.reddit = praw.Reddit(
             client_id='HpEP7Zc8T2SFTw',
