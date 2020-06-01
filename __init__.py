@@ -1,7 +1,8 @@
 from mycroft import MycroftSkill, intent_file_handler
 from . import reddit
+from typing import Any
 
-def get_data_type(self, data_type: str) -> Any:
+def get_data_type(data_type: str) -> Any:
     if data_type in ["video", "videos", "film", "films", "movie", "movies"]:
         return reddit.Reddit.DataTypes.VIDEO
     elif data_type in ["image", "images", "photo", "photos", "picture", "pictures"]:
@@ -47,10 +48,15 @@ class RedditSkill(MycroftSkill):
             return
 
         self.speak_dialog("reddit_show")
-        self.speak(f"you want to display {show_data_type} from {show_data_community}")
+        self.speak(f"you want to download {show_data_type} from {show_data_community}")
 
         data_type = get_data_type(show_data_type)
-        downloader = reddit.Reddit()
+        downloader = reddit.Reddit(
+            download_folder="/home/tcanabrava/coiso", 
+            limit=10
+        )
+
+        self.speak("Downloading everything")
         downloader.download_all(data_type, [show_data_community])
 
 

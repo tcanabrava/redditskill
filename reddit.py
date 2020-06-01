@@ -9,7 +9,7 @@ import argparse
 
 from typing import List
 
-
+from enum import Enum
 
 class Reddit:
     class DataTypes(Enum):
@@ -17,8 +17,9 @@ class Reddit:
         IMAGES = 2
         ALL = 3
 
-    def __init__(self, download_folder):
+    def __init__(self, download_folder, limit):
         self.download_folder = download_folder
+        self.limit = limit
         self.reddit = praw.Reddit(
             client_id='HpEP7Zc8T2SFTw',
             client_secret='ODmytCFJFp--Zj0wCl2SXG0v0jE',
@@ -29,7 +30,7 @@ class Reddit:
     def get_reddit_replies(self, arg):
         result = []
         try:
-            result = reddit.subreddit(arg).hot(limit=10000)
+            result = reddit.subreddit(arg).hot(limit=self.limit)
         except Exception:
             result = [] 
         finally:
@@ -54,7 +55,7 @@ class Reddit:
         if not filetype.lower() in ['jpg', 'png', 'gif', 'jpeg']:
             return
 
-        filename = get_file_name(item)
+        filename = self.get_file_name(item)
         full_file_path = os.path.join(folder, item)
         if os.path.exists(full_file_path):
             print("[File Exists]", filename)
@@ -82,22 +83,22 @@ class Reddit:
             idx = communities.index(arg)
             print("Trying to get", arg)
 
-            folder_video = os.path.join(self.download_path, "Reddit", "videos", arg)
+            folder_video = os.path.join(self.download_folder, "Reddit", "videos", arg)
             pathlib.Path(folder_video).mkdir(parents=True, exist_ok=True)
 
-            folder_pic = os.path.join(self.download_path, "Reddit", "pictures", arg)
+            folder_pic = os.path.join(self.download_folder, "Reddit", "pictures", arg)
             pathlib.Path(folder_pic).mkdir(parents=True, exist_ok=True)
 
-            for item in get_reddit_replies(arg):
+            for item in self.get_reddit_replies(arg):
                 try:
                     print(f"[{idx} of {total}]", end="")
                     if data_type == Reddit.DataTypes.ALL:
-                        save_video(item=item, folder=folder_video)
-                        save_image(item=item, folder=folder_pic)
+                        self.save_video(item=item, folder=folder_video)
+                        self.save_image(item=item, folder=folder_pic)
                     elif data_type == Reddit.DataTypes.IMAGES:
-                        save_image(item=item, folder=folder_pic)
+                        self.save_image(item=item, folder=folder_pic)
                     elif data_type == Reddit.DataTypes.VIDEO:
-                        save_video(item=item, folder=folder_video)
+                        self.save_video(item=item, folder=folder_video)
 
                 except Exception as e:
                     print(f"Error trying to get {arg}: {e}")
