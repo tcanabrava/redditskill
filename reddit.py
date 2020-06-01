@@ -115,7 +115,7 @@ def main():
     communities = args.reddits if args.reddits else reddit_communities
 
     reddit = Reddit()
-    reddit.download_all(communities)
+    reddit.download_all('/home/tcanabrava/coiso', communities)
     return 0
 
 if __name__ == "__main__":
