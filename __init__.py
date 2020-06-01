@@ -52,6 +52,7 @@ class RedditSkill(MycroftSkill):
 
         data_type = get_data_type(show_data_type)
         downloader = reddit.Reddit(
+            mycroft=self,
             download_folder="/home/tcanabrava/coiso", 
             limit=10
         )

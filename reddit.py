@@ -17,9 +17,10 @@ class Reddit:
         IMAGES = 2
         ALL = 3
 
-    def __init__(self, download_folder, limit):
+    def __init__(self, mycroft, download_folder, limit):
         self.download_folder = download_folder
         self.limit = limit
+        self.mycroft = mycroft
         self.reddit = praw.Reddit(
             client_id='HpEP7Zc8T2SFTw',
             client_secret='ODmytCFJFp--Zj0wCl2SXG0v0jE',
@@ -30,8 +31,10 @@ class Reddit:
     def get_reddit_replies(self, arg):
         result = []
         try:
-            result = reddit.subreddit(arg).hot(limit=self.limit)
-        except Exception:
+            result = self.reddit.subreddit(arg).hot(limit=self.limit)
+            self.mycroft.speak(f"Getting replies")
+        except Exception as e:
+            self.mycroft.speak(f"Got zero replies {e}")
             result = [] 
         finally:
             return result
@@ -53,23 +56,26 @@ class Reddit:
         filetype = item.url.split('.')[-1]    
 
         if not filetype.lower() in ['jpg', 'png', 'gif', 'jpeg']:
+            self.mycroft.log.info(f"File does not have a filetype:{item.url}")
             return
 
         filename = self.get_file_name(item)
-        full_file_path = os.path.join(folder, item)
+        full_file_path = os.path.join(folder, filename)
         if os.path.exists(full_file_path):
-            print("[File Exists]", filename)
+            self.mycroft.log.info("[File Exists]", filename)
             return
 
         try:
             response = requests.get(item.url)
             if not response.ok:
+                self.mycroft.log.info("Error downloading file.")
                 return
-        except Exception:
+        except Exception as e:
+            self.mycroft.log.info(f"Error downloading path {e}")
             return
 
-        print(f"[File Saved] {filename}")
-        pathlib.Path(full_File_path).write_bytes(response.content)
+        self.mycroft.log.info(f"[File Saved] {filename}")
+        pathlib.Path(full_file_path).write_bytes(response.content)
 
 
     def save_video(self, item:str, folder:str) -> None:
@@ -78,27 +84,28 @@ class Reddit:
 
 
     def download_all(self, data_type, communities: List[str]) -> None:
+        self.mycroft.speak(f"Inside of the reddit library {data_type}")
         total = len(communities)
         for arg in communities:
             idx = communities.index(arg)
-            print("Trying to get", arg)
+            self.mycroft.speak(f"Trying to get {arg}")
 
-            folder_video = os.path.join(self.download_folder, "Reddit", "videos", arg)
-            pathlib.Path(folder_video).mkdir(parents=True, exist_ok=True)
+            if data_type in [Reddit.DataTypes.ALL, Reddit.DataTypes.VIDEO]:
+                folder_video = os.path.join(self.download_folder, "Reddit", "videos", arg)
+                pathlib.Path(folder_video).mkdir(parents=True, exist_ok=True)
 
-            folder_pic = os.path.join(self.download_folder, "Reddit", "pictures", arg)
-            pathlib.Path(folder_pic).mkdir(parents=True, exist_ok=True)
+            if data_type in [Reddit.DataTypes.ALL, Reddit.DataTypes.IMAGES]:
+                folder_pic = os.path.join(self.download_folder, "Reddit", "pictures", arg)
+                pathlib.Path(folder_pic).mkdir(parents=True, exist_ok=True)
+                self.mycroft.speak(f"[{idx} of {total}]")
 
             for item in self.get_reddit_replies(arg):
                 try:
-                    print(f"[{idx} of {total}]", end="")
-                    if data_type == Reddit.DataTypes.ALL:
+                    if data_type in [Reddit.DataTypes.ALL, Reddit.DataTypes.VIDEO]:
                         self.save_video(item=item, folder=folder_video)
+
+                    if data_type in [Reddit.DataTypes.ALL, Reddit.DataTypes.IMAGES]:
                         self.save_image(item=item, folder=folder_pic)
-                    elif data_type == Reddit.DataTypes.IMAGES:
-                        self.save_image(item=item, folder=folder_pic)
-                    elif data_type == Reddit.DataTypes.VIDEO:
-                        self.save_video(item=item, folder=folder_video)
 
                 except Exception as e:
                     print(f"Error trying to get {arg}: {e}")
