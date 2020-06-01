@@ -5,7 +5,7 @@ class RedditSkill(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    def initialize():
+    def initialize(self):
         self.register_entity_file('data.entity')
         self.register_intent_file('reddit_download.intent', self.handle_reddit_download)
         self.register_intent_file('reddit_show.intent', self.handle_reddit_show)
