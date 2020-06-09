@@ -66,18 +66,20 @@ class RedditSkill(MycroftSkill):
         self.speak_dialog("reddit_show")
 
         data_type = get_data_type(show_data_type)
-        downloader = reddit.Reddit(
+        redditController = reddit.Reddit(
             mycroft=self,
             client_id=self.reddit_client_id,
             client_secret=self.reddit_client_secret,
             user_agent=self.reddit_user_agent
         )
 
-        self.speak("Downloading everything")
-        downloader.download_all(data_type, [show_data_community])
-
-    def stop(self) -> None:
-        self.stop_beeping()
+        redditController.download(
+            data_type=data_type,
+            communities=[show_data_community],
+            download_folder=self.download_folder,
+            max_images=self.max_nr_images,
+            max_videos=self.max_nr_videos
+        )
 
 def create_skill() -> RedditSkill:
     return RedditSkill()
