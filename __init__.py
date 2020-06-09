@@ -70,6 +70,8 @@ class RedditSkill(MycroftSkill):
         self.speak("Downloading everything")
         downloader.download_all(data_type, [show_data_community])
 
+    def stop(self) -> None:
+        self.stop_beeping()
 
 def create_skill() -> RedditSkill:
     return RedditSkill()
