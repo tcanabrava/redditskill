@@ -1,0 +1,29 @@
+{
+    "skillMetadata": {
+        "sections": [
+            {
+                "name": "General",
+                "fields": [
+                    {
+                        "name": "download_folder",
+                        "type": "label",
+                        "label": "Download folder",
+                        "value": ""
+                    },
+                    {
+                        "name": "maximum_amount_videos",
+                        "type": "number",
+                        "label": "Maximum amount of videos",
+                        "value": "10"
+                    },
+                    {
+                        "name": "maximum_amount_images",
+                        "type": "number",
+                        "label": "Maximum amount of images",
+                        "value": "10"
+                    }
+                ]
+            }
+        ]
+    }
+}
