@@ -11,6 +11,13 @@ from typing import List
 
 from enum import Enum
 
+
+def folder(download_folder: str, subfolder :str, community: str) -> str:
+    created_folder = os.path.join(download_folder, "Reddit", subfolder, community)
+    pathlib.Path(created_folder).mkdir(parents=True, exist_ok=True)
+    return created_folder
+#
+
 class Reddit:
     class DataTypes(Enum):
         VIDEO = 1
