@@ -14,12 +14,21 @@ def get_data_type(data_type: str) -> Any:
 class RedditSkill(MycroftSkill):
     def __init__(self) -> None:
         MycroftSkill.__init__(self)
+        self.download_folder = None
+        self.max_nr_videos = 0
+        self.max_nr_images = 0
 
     def initialize(self) -> None:
         self.register_entity_file("data.entity")
         self.register_intent_file("reddit_download.intent", self.handle_reddit_download)
         self.register_intent_file("reddit_show.intent", self.handle_reddit_show)
+        self.settings_change_callback = self.on_settings_changed
+        self.on_settings_changed()
 
+    def on_settings_changed(self):
+        self.download_folder = self.settings.get('download_folder', Path.home())
+        self.max_nr_videos = self.settings.get("maximum_amount_videos", 10)
+        self.max_nr_images = self.settings.get("maximum_amount_images", 10)
 
     def handle_reddit_show(self, message) -> None:
         show_data_type = message.data.get("data")
