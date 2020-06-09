@@ -41,7 +41,7 @@ class RedditSkill(MycroftSkill):
         show_data_type = message.data.get("data")
         show_data_community = message.data.get("community")
         if show_data_type is None:
-            self.speak(f"I don't understand what kind of data do you want to download. Videos or Movies?")
+            self.speak(f"I don't understand what kind of data do you want to download. Images or Movies?")
             return
 
         if show_data_community is None:
