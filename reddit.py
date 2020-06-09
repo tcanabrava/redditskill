@@ -25,26 +25,28 @@ class Reddit:
         ALL = 3
 
     def __init__(self, mycroft, client_id: str, client_secret: str, user_agent: str):
-        self.download_folder = download_folder
-        self.limit = limit
         self.mycroft = mycroft
         self.reddit = praw.Reddit(
             client_id=client_id,
             client_secret=client_secret,
             user_agent=user_agent
         )
-
+        self.limit = 1000
+        self.mycroft.log.info(f"{client_id}, {client_secret}, {user_agent}")
+    #
 
     def get_reddit_replies(self, arg):
         result = []
         try:
             result = self.reddit.subreddit(arg).hot(limit=self.limit)
-            self.mycroft.speak(f"Getting replies")
+            self.mycroft.log.info(f"Getting replies")
         except Exception as e:
-            self.mycroft.speak(f"Got zero replies {e}")
+            self.mycroft.log.info(f"Got zero replies {e}")
             result = [] 
         finally:
             return result
+        #
+    #
 
 
     def get_file_name(self, item):
