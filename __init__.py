@@ -33,7 +33,7 @@ class RedditSkill(MycroftSkill):
         self.max_nr_videos = self.settings.get("maximum_amount_videos", 10)
         self.max_nr_images = self.settings.get("maximum_amount_images", 10)
         self.reddit_client_id = self.settings.get("reddit_client_id")
-        self.reddit_client_secret = self.settings.get("reddit_client_settings")
+        self.reddit_client_secret = self.settings.get("reddit_client_secret")
         self.reddit_user_agent = self.settings.get("reddit_user_agent")
 
     def handle_reddit_show(self, message) -> None:
