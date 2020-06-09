@@ -14,9 +14,12 @@ def get_data_type(data_type: str) -> Any:
 class RedditSkill(MycroftSkill):
     def __init__(self) -> None:
         MycroftSkill.__init__(self)
-        self.download_folder = None
+        self.download_folder = Path.home()
         self.max_nr_videos = 0
         self.max_nr_images = 0
+        self.reddit_client_id = ""
+        self.reddit_client_secret = ""
+        self.reddit_user_agent = ""
 
     def initialize(self) -> None:
         self.register_entity_file("data.entity")
@@ -26,9 +29,12 @@ class RedditSkill(MycroftSkill):
         self.on_settings_changed()
 
     def on_settings_changed(self):
-        self.download_folder = self.settings.get('download_folder', Path.home())
+        self.download_folder = self.settings.get('download_folder')
         self.max_nr_videos = self.settings.get("maximum_amount_videos", 10)
         self.max_nr_images = self.settings.get("maximum_amount_images", 10)
+        self.reddit_client_id = self.settings.get("reddit_client_id")
+        self.reddit_client_secret = self.settings.get("reddit_client_settings")
+        self.reddit_user_agent = self.settings.get("reddit_user_agent")
 
     def handle_reddit_show(self, message) -> None:
         show_data_type = message.data.get("data")
@@ -58,13 +64,13 @@ class RedditSkill(MycroftSkill):
             return
 
         self.speak_dialog("reddit_show")
-        self.speak(f"you want to download {show_data_type} from {show_data_community}")
 
         data_type = get_data_type(show_data_type)
         downloader = reddit.Reddit(
             mycroft=self,
-            download_folder=Path.home(),
-            limit=10
+            client_id=self.reddit_client_id,
+            client_secret=self.reddit_client_secret,
+            user_agent=self.reddit_user_agent
         )
 
         self.speak("Downloading everything")

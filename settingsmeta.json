@@ -6,7 +6,7 @@
                 "fields": [
                     {
                         "name": "download_folder",
-                        "type": "label",
+                        "type": "text",
                         "label": "Download folder",
                         "value": ""
                     },
@@ -21,6 +21,24 @@
                         "type": "number",
                         "label": "Maximum amount of images",
                         "value": "10"
+                    },
+                    {
+                        "name": "reddit_client_id",
+                        "type": "text",
+                        "label": "Reddit Client Id",
+                        "value": ""
+                    },
+                    {
+                        "name": "reddit_client_secret",
+                        "type": "text",
+                        "label": "Reddit Client Secret",
+                        "value": ""
+                    },
+                    {
+                        "name": "reddit_user_agent",
+                        "type": "text",
+                        "label": "Reddit User Agent",
+                        "value": ""
                     }
                 ]
             }

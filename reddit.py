@@ -17,14 +17,14 @@ class Reddit:
         IMAGES = 2
         ALL = 3
 
-    def __init__(self, mycroft, download_folder, limit):
+    def __init__(self, mycroft, client_id: str, client_secret: str, user_agent: str):
         self.download_folder = download_folder
         self.limit = limit
         self.mycroft = mycroft
         self.reddit = praw.Reddit(
-            client_id='HpEP7Zc8T2SFTw',
-            client_secret='ODmytCFJFp--Zj0wCl2SXG0v0jE',
-            user_agent='my user agent'
+            client_id=client_id,
+            client_secret=client_secret,
+            user_agent=user_agent
         )
 
 
