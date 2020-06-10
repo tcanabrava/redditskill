@@ -36,7 +36,7 @@ Mycroft.Delegate {
                     Layout.fillWidth: true
                     Layout.preferredHeight: imageSlideShow.height
                     source: model.Image
-                    fillMode: Image.PreserveAspectCrop
+                    fillMode: Image.PreserveAspectFit
                 }
             }
         }
