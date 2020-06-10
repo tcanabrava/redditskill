@@ -7,6 +7,8 @@ import subprocess
 import os
 import argparse
 
+from mycroft.util import LOG
+
 from typing import List
 
 from enum import Enum
@@ -32,16 +34,16 @@ class Reddit:
             user_agent=user_agent
         )
         self.limit = 1000
-        self.mycroft.log.info(f"{client_id}, {client_secret}, {user_agent}")
+        LOG.info(f"{client_id}, {client_secret}, {user_agent}")
     #
 
     def get_reddit_replies(self, arg):
         result = []
         try:
             result = self.reddit.subreddit(arg).hot(limit=self.limit)
-            self.mycroft.log.info(f"Getting replies")
+            LOG.info(f"Getting replies")
         except Exception as e:
-            self.mycroft.log.info(f"Got zero replies {e}")
+            LOG.info(f"Got zero replies {e}")
             result = []
         finally:
             return result
@@ -74,28 +76,28 @@ class Reddit:
         filename = self.get_file_name(item)
         full_file_path = os.path.join(folder, filename)
         if os.path.exists(full_file_path):
-            self.mycroft.log.info(f"[File Exists] {filename}")
+            LOG.info(f"[File Exists] {filename}")
             return False
         #
 
         try:
             response = requests.get(item.url)
             if not response.ok:
-                self.mycroft.log.info("Error downloading file.")
+                LOG.info("Error downloading file.")
                 return False
         except Exception as e:
-            self.mycroft.log.info(f"Error downloading path {e}")
+            LOG.info(f"Error downloading path {e}")
             return False
         #
 
-        self.mycroft.log.info(f"[File Saved] {filename}")
+        LOG.info(f"[File Saved] {filename}")
         pathlib.Path(full_file_path).write_bytes(response.content)
 
         return True
     #
 
     def save_video(self, item:str, folder:str) -> bool:
-        self.mycroft.log.info(f"[Video] Trying to download {item.url} to {folder}")
+        LOG.info(f"[Video] Trying to download {item.url} to {folder}")
         should_download = False
         for accepted_content in ["youtube", "gfycat"]:
             if accepted_content in item.url:
@@ -142,8 +144,8 @@ class Reddit:
                     current_images += 1
                 #
             except Exception as e:
-                    self.mycroft.log.info(f"Error trying to get {community}:")
-                    self.mycroft.log.info(f"{e}")
+                    LOG.info(f"Error trying to get {community}:")
+                    LOG.info(f"{e}")
             #
 
             # Break early from the loop if we finished downloading things
@@ -172,11 +174,11 @@ class Reddit:
         max_images:int,
         max_videos:int) -> None:
 
-        self.mycroft.log.info(f"Inside of the reddit library {data_type}")
+        LOG.info(f"Inside of the reddit library {data_type}")
         total = len(communities)
         for community in communities:
             idx = communities.index(community)
-            self.mycroft.log.info(f"Trying to get {community}")
+            LOG.info(f"Trying to get {community}")
 
             video_folder = folder(
                 download_folder=download_folder,
