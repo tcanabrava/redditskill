@@ -36,20 +36,40 @@ class RedditSkill(MycroftSkill):
         self.reddit_client_secret = self.settings.get("reddit_client_secret")
         self.reddit_user_agent = self.settings.get("reddit_user_agent")
 
+    def createRedditController(self) -> reddit.Reddit:
+        redditController = reddit.Reddit(
+            mycroft=self,
+            client_id=self.reddit_client_id,
+            client_secret=self.reddit_client_secret,
+            user_agent=self.reddit_user_agent
+        )
+        return redditController
+
+
     def handle_reddit_show(self, message) -> None:
         show_data_type = message.data.get("data")
         show_data_community = message.data.get("community")
-        if show_data_type is None:
-            self.speak(f"I don't understand what kind of data do you want to see. Videos or Movies?")
-            return
 
         if show_data_community is None:
-            self.speak(f"I need at least one community to display {show_data_type}")
+            self.speak(f"I need at least one community to show {show_data_type}")
             return
 
-        data_type = get_data_type(show_data_type)
-        self.speak_dialog("reddit_show")
-        self.speak(f"you want to display {show_data_type} from {show_data_community}")
+        redditController = self.createRedditController()
+
+        images = redditController.image_list(
+            community=show_data_community,
+            max_images=self.max_nr_images
+        )
+
+        if not images:
+            self.speak("No images returned to show")
+            return
+
+        for image in images:
+            self.log.info(f"{image['Title']}, {image['Image']}")
+
+        self.gui["images"] = images
+        self.gui.show_page("show_images.qml")
 
 
     def handle_reddit_download(self, message) -> None:
@@ -66,12 +86,7 @@ class RedditSkill(MycroftSkill):
         self.speak_dialog("reddit_show")
 
         data_type = get_data_type(show_data_type)
-        redditController = reddit.Reddit(
-            mycroft=self,
-            client_id=self.reddit_client_id,
-            client_secret=self.reddit_client_secret,
-            user_agent=self.reddit_user_agent
-        )
+        redditController = self.createRedditController()
 
         redditController.download(
             data_type=data_type,
@@ -80,6 +95,7 @@ class RedditSkill(MycroftSkill):
             max_images=self.max_nr_images,
             max_videos=self.max_nr_videos
         )
+
 
 def create_skill() -> RedditSkill:
     return RedditSkill()

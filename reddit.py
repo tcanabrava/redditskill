@@ -9,7 +9,7 @@ import argparse
 
 from mycroft.util import LOG
 
-from typing import List
+from typing import List, Dict, Tuple
 
 from enum import Enum
 
@@ -18,6 +18,11 @@ def folder(download_folder: str, subfolder :str, community: str) -> str:
     created_folder = os.path.join(download_folder, "Reddit", subfolder, community)
     pathlib.Path(created_folder).mkdir(parents=True, exist_ok=True)
     return created_folder
+#
+
+def is_image(item: str) -> bool:
+    filetype = item.url.split('.')[-1]
+    return filetype.lower() in ['jpg', 'png', 'gif', 'jpeg']
 #
 
 class Reddit:
@@ -66,10 +71,9 @@ class Reddit:
     #
 
 
-    def save_image(self, item:str, folder: str) -> bool:
-        filetype = item.url.split('.')[-1]
 
-        if not filetype.lower() in ['jpg', 'png', 'gif', 'jpeg']:
+    def save_image(self, item:str, folder: str) -> bool:
+        if not is_image(item):
             return False
         #
 
@@ -199,6 +203,37 @@ class Reddit:
                 max_videos=max_videos
             )
         #
+    #
+
+    def image_list(self, community: str, max_images: str) -> List[Dict[str, str]]:
+        current_images = 0
+        current_videos = 0
+
+        try:
+            community_posts = self.get_reddit_replies(community)
+        except Exception as e:
+            self.mycroft.speak(f"Unable to reach reddit, verify the reddit skill configuration")
+            return
+        #
+
+        result_list = []
+        for item in community_posts:
+            if not is_image(item):
+                continue
+            #
+
+            result_list.append({
+                "Title":item.title,
+                "Image":item.url
+            })
+            current_images += 1
+
+            # Break early from the loop if we finished downloading things
+            if current_images >= max_images:
+                return result_list
+            #
+        #
+        return result_list
     #
 #
 
