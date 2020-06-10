@@ -6,6 +6,7 @@ import pathlib
 import subprocess
 import os
 import argparse
+import tempfile
 
 from mycroft.util import LOG
 
@@ -23,6 +24,15 @@ def folder(download_folder: str, subfolder :str, community: str) -> str:
 def is_image(item: str) -> bool:
     filetype = item.url.split('.')[-1]
     return filetype.lower() in ['jpg', 'png', 'gif', 'jpeg']
+#
+
+def is_video(item: str) -> bool:
+    for accepted_content in ["youtube", "gfycat"]:
+        if accepted_content in item.url:
+            return True
+        #
+    #
+    return False
 #
 
 class Reddit:
@@ -100,14 +110,19 @@ class Reddit:
         return True
     #
 
+    def save_to_temp(self, video_url: str) -> bool:
+        try:
+            os.unlink(tempfile.gettempdir() + '/mycroft_tmp_video')
+        except:
+            pass
+
+        if subprocess.call(['youtube-dl', "-o", "mycroft_tmp_video", video_url], cwd=tempfile.gettempdir()) != 0:
+            return ""
+        return tempfile.gettempdir() + "/mycroft_tmp_video.mkv"
+
     def save_video(self, item:str, folder:str) -> bool:
         LOG.info(f"[Video] Trying to download {item.url} to {folder}")
-        should_download = False
-        for accepted_content in ["youtube", "gfycat"]:
-            if accepted_content in item.url:
-                should_download = True
-
-        if not should_download:
+        if not is_video(item):
             return False
         #
 
@@ -207,7 +222,6 @@ class Reddit:
 
     def image_list(self, community: str, max_images: str) -> List[Dict[str, str]]:
         current_images = 0
-        current_videos = 0
 
         try:
             community_posts = self.get_reddit_replies(community)
@@ -223,13 +237,46 @@ class Reddit:
             #
 
             result_list.append({
-                "Title":item.title,
-                "Image":item.url
+                "Title": item.title,
+                "Image": item.url
             })
+
             current_images += 1
 
             # Break early from the loop if we finished downloading things
             if current_images >= max_images:
+                return result_list
+            #
+        #
+        return result_list
+    #
+
+
+    def video_list(self, community: str, max_videos: str) -> List[Dict[str, str]]:
+        current_videos = 0
+
+        try:
+            community_posts = self.get_reddit_replies(community)
+        except Exception as e:
+            self.mycroft.speak(f"Unable to reach reddit, verify the reddit skill configuration")
+            return
+        #
+
+        result_list = []
+        for item in community_posts:
+            if not is_video(item):
+                continue
+            #
+
+            result_list.append({
+                "Title": item.title,
+                "Video": item.url
+            })
+
+            current_videos += 1
+
+            # Break early from the loop if we finished downloading things
+            if current_videos >= max_videos:
                 return result_list
             #
         #

@@ -20,13 +20,22 @@ class RedditSkill(MycroftSkill):
         self.reddit_client_id = ""
         self.reddit_client_secret = ""
         self.reddit_user_agent = ""
+    #
 
     def initialize(self) -> None:
         self.register_entity_file("data.entity")
         self.register_intent_file("reddit_download.intent", self.handle_reddit_download)
         self.register_intent_file("reddit_show.intent", self.handle_reddit_show)
+        self.register_intent_file("reddit_play.intent", self.handle_reddit_video)
+
         self.settings_change_callback = self.on_settings_changed
+
+        self.gui.register_handler('reddit.video.next', self.play_next_video)
+        self.gui.register_handler('reddit.video.prev', self.play_previous_video)
+
         self.on_settings_changed()
+        self.createRedditController()
+    #
 
     def on_settings_changed(self):
         self.download_folder = self.settings.get('download_folder')
@@ -35,15 +44,16 @@ class RedditSkill(MycroftSkill):
         self.reddit_client_id = self.settings.get("reddit_client_id")
         self.reddit_client_secret = self.settings.get("reddit_client_secret")
         self.reddit_user_agent = self.settings.get("reddit_user_agent")
+    #
 
-    def createRedditController(self) -> reddit.Reddit:
-        redditController = reddit.Reddit(
+    def createRedditController(self) -> None:
+        self.redditController = reddit.Reddit(
             mycroft=self,
             client_id=self.reddit_client_id,
             client_secret=self.reddit_client_secret,
             user_agent=self.reddit_user_agent
         )
-        return redditController
+    #
 
 
     def handle_reddit_show(self, message) -> None:
@@ -54,9 +64,7 @@ class RedditSkill(MycroftSkill):
             self.speak(f"I need at least one community to show {show_data_type}")
             return
 
-        redditController = self.createRedditController()
-
-        images = redditController.image_list(
+        images = self.redditController.image_list(
             community=show_data_community,
             max_images=self.max_nr_images
         )
@@ -70,7 +78,64 @@ class RedditSkill(MycroftSkill):
 
         self.gui["images"] = images
         self.gui.show_page("show_images.qml")
+    #
 
+    def handle_reddit_video(self, message) -> None:
+        show_data_type = message.data.get("data")
+        show_data_community = message.data.get("community")
+
+        if show_data_community is None:
+            self.speak(f"I need at least one community to show {show_data_type}")
+            return
+
+
+        videos = self.redditController.video_list(
+            community=show_data_community,
+            max_videos=self.max_nr_videos
+        )
+
+        if not videos:
+            self.speak("No videos returned to play")
+            return
+
+        for video in videos:
+            self.log.info(f"{video['Title']}, {video['Video']}")
+
+        self.videos = videos
+        self.currentVideoIndex = -1
+        self.play_next_video()
+    #
+
+    def play_next_video(self) -> None:
+        self.currentVideoIndex = len(self.videos) % self.currentVideoIndex + 1
+        self.log.info(f"Playing video {self.currentVideoIndex}")
+        self.play_current_video()
+    #
+
+    def play_previous_video(self) -> None:
+        self.currentVideoIndex -= 1
+        if self.currentVideoIndex < 0:
+            self.currentVideoIndex = len(self.videos) - 1
+        #
+        self.play_current_video()
+    #
+
+    def play_current_video(self) -> None:
+        self.log.info(f"Playing video {self.currentVideoIndex}")
+        self.gui["videoTitle"] = self.videos[self.currentVideoIndex]['Title']
+
+        self.log.info("Saving video")
+        local_url = self.redditController.save_to_temp(self.videos[self.currentVideoIndex]['Video'])
+        if not local_url:
+            self.speak("Could not save the video in a temporary folder for playing.")
+            self.log.info("Could not save the video in a temporary folder for playing.")
+        #
+
+        self.log.info(f"Video saved, starting to play {local_url}")
+
+        self.gui["videoUrl"] = local_url
+        self.gui.show_page("show_videos.qml")
+    #
 
     def handle_reddit_download(self, message) -> None:
         show_data_type = message.data.get("data")
@@ -78,25 +143,27 @@ class RedditSkill(MycroftSkill):
         if show_data_type is None:
             self.speak(f"I don't understand what kind of data do you want to download. Images or Movies?")
             return
+        #
 
         if show_data_community is None:
             self.speak(f"I need at least one community to download {show_data_type}")
             return
+        #
 
         self.speak_dialog("reddit_show")
 
         data_type = get_data_type(show_data_type)
-        redditController = self.createRedditController()
 
-        redditController.download(
+        self.redditController.download(
             data_type=data_type,
             communities=[show_data_community],
             download_folder=self.download_folder,
             max_images=self.max_nr_images,
             max_videos=self.max_nr_videos
         )
+    #
 
 
 def create_skill() -> RedditSkill:
     return RedditSkill()
-
+#
