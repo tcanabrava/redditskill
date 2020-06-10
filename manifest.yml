@@ -31,3 +31,7 @@
 dependencies:
   python:
     - psraw
+  system:
+    all: youtube-dl
+    exes:
+      - youtube-dl
