@@ -5,7 +5,9 @@ Download video and images from reddit
 
 
 ## Examples
-* "Reddit download"
+* "Reddit download videos from aww"
+* "Reddit show animalsbeingderps"
+* "Reddit download images from worldnews"
 
 ## Credits
 Tomaz Canabrava
