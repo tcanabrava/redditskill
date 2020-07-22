@@ -128,7 +128,7 @@ class Reddit:
 
             video_url = subprocess.check_output(
                 youtube_dl_params
-            )
+            ).decode("utf-8")
 
             LOG.info(f"Getting Video URL Video Url: {video_url}")
             return video_url
