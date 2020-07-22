@@ -123,7 +123,6 @@ class RedditSkill(MycroftSkill):
 
     def play_current_video(self) -> None:
         self.log.info(f"Playing video {self.currentVideoIndex}")
-        self.gui["videoTitle"] = self.videos[self.currentVideoIndex]['Title']
 
         self.log.info("Saving video")
         local_url = self.redditController.save_to_temp(self.videos[self.currentVideoIndex]['Video'])
@@ -132,8 +131,8 @@ class RedditSkill(MycroftSkill):
             self.log.info("Could not save the video in a temporary folder for playing.")
         #
 
-        self.log.info(f"Video saved, starting to play {local_url}")
-
+        self.log.info(f"Video found, starting to play {local_url}")
+        self.gui["videoTitle"] = self.videos[self.currentVideoIndex]['Title']
         self.gui["videoUrl"] = local_url
         self.gui.show_page("show_videos.qml")
     #
