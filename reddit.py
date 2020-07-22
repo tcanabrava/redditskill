@@ -118,7 +118,7 @@ class Reddit:
                 extra_params = ["--format", "best[height<=480]"]
 
             youtube_dl_params = [
-                "youtube-dl"
+                "youtube-dl",
                 "--get-url"
             ]
             for param in extra_params:
