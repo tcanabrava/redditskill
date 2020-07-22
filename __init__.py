@@ -124,11 +124,14 @@ class RedditSkill(MycroftSkill):
     def play_current_video(self) -> None:
         self.log.info(f"Playing video {self.currentVideoIndex}")
 
-        self.log.info("Saving video")
-        local_url = self.redditController.save_to_temp(self.videos[self.currentVideoIndex]['Video'])
+        self.log.info("Getting video information")
+        local_url = self.redditController.get_video_url(self.videos[self.currentVideoIndex]['Video'])
         if not local_url:
-            self.speak("Could not save the video in a temporary folder for playing.")
-            self.log.info("Could not save the video in a temporary folder for playing.")
+            self.speak("Could not find the URL for the video.")
+            self.log.info("Could not find the URL for the video.")
+            return
+        else:
+            self.speak(f"Playing video {self.videos[self.currentVideoIndex]['Title']}")
         #
 
         self.log.info(f"Video found, starting to play {local_url}")
