@@ -110,6 +110,32 @@ class Reddit:
         return True
     #
 
+    def get_video_url(self, reddit_url: str) -> str:
+        try:
+            if ("gfycat" in reddit_url):
+                extra_params = []
+            elif ("youtube" in reddit_url):
+                extra_params = ["--format", "best[height<=480]"]
+
+            youtube_dl_params = [
+                "youtube-dl"
+                "--get-url"
+            ]
+            for param in extra_params:
+                youtube_dl_params.append(param)
+
+            youtube_dl_params.append(reddit_url)
+
+            video_url = subprocess.check_output(
+                youtube_dl_params
+            )
+
+            LOG.info(f"Getting Video URL Video Url: {video_url}")
+            return video_url
+        except Exception as e:
+            LOG.info(f"{e}")
+            return ""
+
     def save_to_temp(self, video_url: str) -> bool:
         try:
             os.unlink(tempfile.gettempdir() + '/mycroft_tmp_video')
