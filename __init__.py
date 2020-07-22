@@ -83,6 +83,7 @@ class RedditSkill(MycroftSkill):
     def handle_reddit_video(self, message) -> None:
         show_data_type = message.data.get("data")
         show_data_community = message.data.get("community")
+        self.speak(f"Looking for videos on the {show_data_community} subreddit")
 
         if show_data_community is None:
             self.speak(f"I need at least one community to show {show_data_type}")
