@@ -8,6 +8,7 @@ Mycroft.Delegate {
     id: root
 
     ColumnLayout {
+        anchors.fill: parent
         Kirigami.Heading {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -23,11 +24,14 @@ Mycroft.Delegate {
             source: sessionData.videoUrl
             nextAction: "reddit.video.next"
             previousAction: "reddit.video.prev"
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            // Undocumented, should be "play", "stop" or "pause"
-            status: "play"
+            status: "stop"
             onSourceChanged: {
                 console.log("Changing source to", source)
+                status = "stop"
+                status = "play"
             }
         }
     }
